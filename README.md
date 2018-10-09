@@ -28,13 +28,13 @@ The endpoint will support the following paths and HTTP operations
             
             POST (INSERT)
             
-* ```/roster: Gets info about a team and year.```
+* ```/roster``` Gets info about a team and year.
 
             GET with query parameters teamID, yearID
             
             Returns [{playerID, nameLast, nameFirst, G_all, H, AB}]
             
-* ```/career_stats Gets career totals for selected players.```
+* ```/career_stats``` Gets career totals for selected players.
 
             GET with query parameters to choose player based on fields in People.
             
