@@ -10,7 +10,7 @@ There are two parts to the application:
 
 # Back-end API
 The endpoint will support the following paths and HTTP operations
-* /<resource>
+* ```/<resource>```
        
             POST (INSERT)
        
