@@ -18,8 +18,8 @@ ALTER TABLE people MODIFY deathMonth INT NULL;
 ALTER TABLE people MODIFY deathDay INT NULL; 
 ALTER TABLE people MODIFY weight INT NULL; 
 ALTER TABLE people MODIFY height INT NULL; 
-ALTER TABLE people MODIFY debut DATE NULL; 
-ALTER TABLE people MODIFY finalGame DATE NULL; 
+ALTER TABLE people MODIFY debut VARCHAR(64) NULL; 
+ALTER TABLE people MODIFY finalGame VARCHAR(64) NULL; 
 ALTER TABLE people MODIFY throws ENUM('L', 'R', 'S') NULL DEFAULT NULL; 
 ALTER TABLE people MODIFY bats ENUM('L', 'R', 'S') NULL DEFAULT NULL; 
 
@@ -134,16 +134,16 @@ UPDATE fielding SET POS=NULL WHERE POS="";
 ALTER TABLE people ADD PRIMARY KEY (playerID); 
 
 # Batting
-ALTER TABLE batting ADD PRIMARY KEY (playerID, yearID, teamID, stint); 
+ALTER TABLE batting ADD PRIMARY KEY (playerID, teamID, yearID, stint); 
 
 # Appearance 
-ALTER TABLE appearances ADD PRIMARY KEY (yearID, teamID, playerID); 
+ALTER TABLE appearances ADD PRIMARY KEY (playerID, teamID, yearID); 
 
 # Teams 
 ALTER TABLE teams ADD PRIMARY KEY (yearID, teamId); 
 
 # Managers
-ALTER TABLE managers ADD PRIMARY KEY (playerID, yearID, teamID, inseason); 
+ALTER TABLE managers ADD PRIMARY KEY (playerID, teamID, yearID, inseason); 
 
 
 

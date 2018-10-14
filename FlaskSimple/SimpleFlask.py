@@ -42,22 +42,28 @@ def preprocess_query(query):
 
 
 def process_pagination(data_result, has_next_page, request_url, offset, limit): 
-
-	request_prefix = request_url.split("&offset")[0] 
+	print(request_url) 
+	request_prefix = request_url.split("offset")[0] 
+	print(request_prefix) 
+	if not "?" in request_prefix: 
+   		request_prefix += "?" 
+	else: 
+		if not request_prefix.endswith('&'): 
+			request_prefix += "&"
 
 	link = [] 
 	if not offset == 0: 
 		previous = {} 
-		previous["previous"] = request_prefix + "&offset=" + str(offset - limit) + "&limit=" + str(limit) 
+		previous["previous"] = request_prefix + "offset=" + str(offset - limit) + "&limit=" + str(limit) 
 		link.append(previous) 
 
 	current = {} 
-	current["current"] = request_prefix + "&offset=" + str(offset) + "&limit=" + str(limit) 
+	current["current"] = request_prefix + "offset=" + str(offset) + "&limit=" + str(limit) 
 	link.append(current) 
 
 	if has_next_page: 
 		nextL = {} 
-		nextL["next"] = request_prefix + "&offset=" + str(offset + limit) + "&limit=" + str(limit) 
+		nextL["next"] = request_prefix + "offset=" + str(offset + limit) + "&limit=" + str(limit) 
 		link.append(nextL) 
 
 	result = {} 
@@ -98,7 +104,7 @@ def get_spec_resource(resource, primary_key):
 		# result = process_pagination(data_result, has_next_page, request.url, offset, limit) 
 		return json.dumps(result), 200, {'Content-Type': 'application/json; charset=utr-8'} 
 	else: 
-		return "NOT FOUND", 400 
+		return "Error: NOT FOUND", 400 
 
 
 @app.route('/api/<resource>/<primary_key>/<related_resource>', methods=['GET']) 
@@ -113,8 +119,97 @@ def get_related_resource(resource, primary_key, related_resource):
 		result = process_pagination(data_result, has_next_page, request.url, offset, limit) 
 		return json.dumps(result), 200, {'Content-Type': 'application/json; charset=utr-8'} 
 	else: 
-		return "NOT FOUND", 400 	
+		return "Error: NOT FOUND", 400 
 
+
+@app.route('/api/<resource>', methods=['POST']) 
+def post_base_resource(resource): 
+	data = request.form 
+
+	result, err = SimpleBO.save_base_resource(resource, data) 
+	if result: 
+		return "Update Successfully", 200 
+	else: 
+		return "Error: " + err, 400 
+
+
+@app.route('/api/<resource>/<primary_key>/<related_resource>', methods=['POST']) 
+def post_related_resource(resource, primary_key, related_resource): 
+	data = request.form  
+
+	result, err = SimpleBO.save_related_resource(resource, primary_key, related_resource, data) 
+	if result: 
+		return "Insert Successfully", 201 
+	else: 
+		return "Error: " + err, 400 
+
+
+@app.route('/api/<resource>/<primary_key>', methods=['PUT']) 
+def put_spec_resource(resource, primary_key): 
+	data = request.form 
+	print(data) 
+
+	result, err = SimpleBO.update_spec_resource(resource, primary_key, data) 
+	if result: 
+		return "Update Successfully", 200 
+	else: 
+		return "Error: " + err, 400 
+
+
+@app.route('/api/<resource>/<primary_key>', methods=['DELETE']) 
+def delete_spec_resource(resource, primary_key): 
+
+	result, err = SimpleBO.del_spec_resource(resource, primary_key) 
+	if result: 
+		return "Delete Successfully", 200 
+	else: 
+		return "Error: " + err, 400 
+
+
+# Custom queries 
+@app.route('/api/teammates/<player_id>', methods=['GET']) 
+def custom_teammates(player_id): 
+	query = request.args 
+
+	fields, offset, limit = preprocess_query(query) 
+
+	data_result, has_next_page = SimpleBO.get_teammates(player_id, offset, limit) 
+
+	if data_result: 
+		result = process_pagination(data_result, has_next_page, request.url, offset, limit) 
+		return json.dumps(result), 200, {'Content-Type': 'application/json; charset=utr-8'} 
+	else: 
+		return "NOT FOUND", 400 
+
+
+@app.route('/api/roster', methods=['GET']) 
+def custom_roster(): 
+	query = request.args 
+
+	fields, offset, limit = preprocess_query(query) 
+
+	data_result, has_next_page = SimpleBO.get_roster(query["teamid"], query["yearid"], offset, limit) 
+
+	if data_result: 
+		result = process_pagination(data_result, has_next_page, request.url, offset, limit) 
+		return json.dumps(result), 200, {'Content-Type': 'application/json; charset=utr-8'} 
+	else: 
+		return "NOT FOUND", 400 
+
+
+@app.route('/api/people/<primary_key>/career_stats', methods=['GET']) 
+def custom_career_stats(primary_key): 
+	query = request.args 
+
+	fields, offset, limit = preprocess_query(query) 
+
+	data_result, has_next_page = SimpleBO.get_career_stats(primary_key, offset, limit) 
+
+	if data_result: 
+		result = process_pagination(data_result, has_next_page, request.url, offset, limit) 
+		return json.dumps(result), 200, {'Content-Type': 'application/json; charset=utr-8'} 
+	else: 
+		return "NOT FOUND", 400 	
 
 
 
