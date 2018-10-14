@@ -73,6 +73,7 @@ def process_pagination(data_result, has_next_page, request_url, offset, limit):
 @app.route('/api/<resource>', methods=['GET']) 
 def get_base_resource(resource): 
 	query = request.args 
+	print(resource) 
 
 	fields, offset, limit = preprocess_query(query) 
 
@@ -91,13 +92,28 @@ def get_spec_resource(resource, primary_key):
 
 	fields, offset, limit = preprocess_query(query) 
 
-	data_result, has_next_page = SimpleBO.find_spec_resource(resource, primary_key, query, fields, offset, limit) 
+	result = SimpleBO.find_spec_resource(resource, primary_key, fields) 
+
+	if result: 
+		# result = process_pagination(data_result, has_next_page, request.url, offset, limit) 
+		return json.dumps(result), 200, {'Content-Type': 'application/json; charset=utr-8'} 
+	else: 
+		return "NOT FOUND", 400 
+
+
+@app.route('/api/<resource>/<primary_key>/<related_resource>', methods=['GET']) 
+def get_related_resource(resource, primary_key, related_resource): 
+	query = request.args 
+
+	fields, offset, limit = preprocess_query(query) 
+	print("match") 
+	data_result, has_next_page = SimpleBO.find_related_resource(resource, primary_key, related_resource, query, fields, offset, limit) 
 
 	if data_result: 
 		result = process_pagination(data_result, has_next_page, request.url, offset, limit) 
 		return json.dumps(result), 200, {'Content-Type': 'application/json; charset=utr-8'} 
 	else: 
-		return "NOT FOUND", 400 
+		return "NOT FOUND", 400 	
 
 
 
